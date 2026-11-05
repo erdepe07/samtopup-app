@@ -49,7 +49,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   void _open(String invoice, [Order? o]) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => OrderScreen(invoice: invoice, initial: o)),
+      MaterialPageRoute(
+          builder: (_) => OrderScreen(invoice: invoice, initial: o)),
     );
   }
 
@@ -75,10 +76,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
       }
     }
 
-    final orders = app.loggedIn ? (_remote ?? app.localOrders) : app.localOrders;
+    // Tanpa login daftar kosong: pesanan hanya bisa dicari lewat nomor transaksi.
+    final orders =
+        app.loggedIn ? (_remote ?? const <Order>[]) : const <Order>[];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Pesanan', style: TextStyle(fontWeight: FontWeight.w800))),
+      appBar: AppBar(
+          title: const Text('Pesanan',
+              style: TextStyle(fontWeight: FontWeight.w800))),
       body: RefreshIndicator(
         onRefresh: _loadRemote,
         child: ListView(
@@ -93,55 +98,99 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     controller: _invoice,
                     textInputAction: TextInputAction.search,
                     onSubmitted: (_) => _search(),
-                    decoration: const InputDecoration(hintText: 'Nomor invoice'),
+                    decoration:
+                        const InputDecoration(hintText: 'Nomor invoice'),
                   ),
                 ),
                 const SizedBox(width: 10),
                 SizedBox(
                   width: 100,
-                  child: ElevatedButton(onPressed: _search, child: const Text('Cek')),
+                  child: ElevatedButton(
+                      onPressed: _search, child: const Text('Cek')),
                 ),
               ],
             ),
             const SizedBox(height: 26),
-            SectionTitle(app.loggedIn ? 'Riwayat pesanan' : 'Pesanan di perangkat ini'),
-            if (_loading) const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
-            if (_error != null) Padding(padding: const EdgeInsets.only(bottom: 10), child: Text(_error!, style: const TextStyle(color: Color(0xFFDC2626)))),
-            if (!_loading && orders.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(36),
-                child: Column(
+            if (!app.loggedIn)
+              SoftCard(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.receipt_long_outlined, size: 44, color: p.muted),
-                    const SizedBox(height: 10),
-                    Text('Belum ada pesanan.', style: TextStyle(color: p.muted)),
+                    Icon(Icons.info_rounded, color: p.accent),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Anda belum login, jadi riwayat pesanan tidak ditampilkan. '
+                        'Salin nomor transaksi setiap kali membeli, lalu cari pesanannya di kolom atas. '
+                        'Login untuk melihat semua pesanan Anda di sini.',
+                        style: TextStyle(color: p.muted, height: 1.4),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            for (final o in orders)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: SoftCard(
-                  onTap: () => _open(o.invoice, o),
-                  child: Row(
+              )
+            else ...[
+              const SectionTitle('Riwayat pesanan'),
+              if (_loading)
+                const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(child: CircularProgressIndicator())),
+              if (_error != null)
+                Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(_error!,
+                        style: const TextStyle(color: Color(0xFFDC2626)))),
+              if (!_loading && orders.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(36),
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${o.game} · ${o.product}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w800)),
-                            const SizedBox(height: 3),
-                            Text(o.invoice, style: TextStyle(color: p.muted, fontSize: 12)),
-                            const SizedBox(height: 6),
-                            Text(rupiah(o.total), style: TextStyle(color: p.primary, fontWeight: FontWeight.w800)),
-                          ],
-                        ),
-                      ),
-                      StatusChip(o.status),
+                      Icon(Icons.receipt_long_outlined,
+                          size: 44, color: p.muted),
+                      const SizedBox(height: 10),
+                      Text('Belum ada pesanan.',
+                          style: TextStyle(color: p.muted)),
                     ],
                   ),
                 ),
-              ),
+              for (final o in orders)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: SoftCard(
+                    onTap: () => _open(o.invoice, o),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${o.game} · ${o.product}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w800)),
+                              const SizedBox(height: 3),
+                              Text(o.invoice,
+                                  style:
+                                      TextStyle(color: p.muted, fontSize: 12)),
+                              const SizedBox(height: 2),
+                              Text(formatDateTime(o.createdAt),
+                                  style:
+                                      TextStyle(color: p.muted, fontSize: 12)),
+                              const SizedBox(height: 6),
+                              Text(rupiah(o.total),
+                                  style: TextStyle(
+                                      color: p.primary,
+                                      fontWeight: FontWeight.w800)),
+                            ],
+                          ),
+                        ),
+                        StatusChip(o.status),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
           ],
         ),
       ),

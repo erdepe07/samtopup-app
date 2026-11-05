@@ -33,7 +33,8 @@ class AppState extends ChangeNotifier {
 
   Future<void> _restore() async {
     final t = prefs.getString('theme');
-    themeMode = ThemeMode.values.firstWhere((m) => m.name == t, orElse: () => ThemeMode.system);
+    themeMode = ThemeMode.values
+        .firstWhere((m) => m.name == t, orElse: () => ThemeMode.system);
 
     try {
       final raw = prefs.getString('local_orders');
@@ -74,12 +75,13 @@ class AppState extends ChangeNotifier {
   Future<void> login(String username, String password) async =>
       _applyAuth(await repo.login(username, password));
 
-  Future<void> register(String name, String username, String password, String whatsapp) async =>
+  Future<void> register(String username, String whatsapp, String password,
+          String passwordConfirm) async =>
       _applyAuth(await repo.register(
-        name: name,
         username: username,
-        password: password,
         whatsapp: whatsapp,
+        password: password,
+        passwordConfirm: passwordConfirm,
       ));
 
   Future<void> refreshUser() async {
@@ -106,14 +108,16 @@ class AppState extends ChangeNotifier {
     localOrders.removeWhere((e) => e.invoice == o.invoice);
     localOrders.insert(0, o);
     if (localOrders.length > 50) localOrders = localOrders.sublist(0, 50);
-    await prefs.setString('local_orders', jsonEncode(localOrders.map((e) => e.toJson()).toList()));
+    await prefs.setString('local_orders',
+        jsonEncode(localOrders.map((e) => e.toJson()).toList()));
     notifyListeners();
   }
 }
 
 /// Akses [AppState] dari widget mana pun.
 class AppScope extends InheritedNotifier<AppState> {
-  const AppScope({super.key, required AppState state, required super.child}) : super(notifier: state);
+  const AppScope({super.key, required AppState state, required super.child})
+      : super(notifier: state);
 
   /// Ikut membangun ulang saat status berubah.
   static AppState of(BuildContext context) =>

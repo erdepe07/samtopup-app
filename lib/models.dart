@@ -15,7 +15,8 @@ List<Map<String, dynamic>> _list(dynamic v) {
 
 class GameSummary {
   final String slug, name, image;
-  const GameSummary({required this.slug, required this.name, required this.image});
+  const GameSummary(
+      {required this.slug, required this.name, required this.image});
 
   factory GameSummary.fromJson(Map<String, dynamic> j) => GameSummary(
         slug: _str(j['slug']),
@@ -163,13 +164,21 @@ class GameDetail {
 class PaymentInfo {
   /// qris | va | retail | redirect | balance | none
   final String type;
-  final String checkoutUrl, qrUrl, payCode, payLabel, expiredAt;
+  final String checkoutUrl,
+      qrUrl,
+      qrString,
+      payCode,
+      payLabel,
+      instruction,
+      expiredAt;
   const PaymentInfo({
     this.type = 'none',
     this.checkoutUrl = '',
     this.qrUrl = '',
+    this.qrString = '',
     this.payCode = '',
     this.payLabel = '',
+    this.instruction = '',
     this.expiredAt = '',
   });
 
@@ -177,8 +186,10 @@ class PaymentInfo {
         type: _str(j['type']).isEmpty ? 'none' : _str(j['type']),
         checkoutUrl: _str(j['checkout_url']),
         qrUrl: _str(j['qr_url']),
+        qrString: _str(j['qr_string']),
         payCode: _str(j['pay_code']),
         payLabel: _str(j['pay_label']),
+        instruction: _str(j['instruction']),
         expiredAt: _str(j['expired_at']),
       );
 }
@@ -230,6 +241,19 @@ class Order {
       };
 }
 
+class TopupInfo {
+  final int min, max;
+  final List<PayMethod> methods;
+  const TopupInfo(
+      {this.min = 10000, this.max = 5000000, this.methods = const []});
+
+  factory TopupInfo.fromJson(Map<String, dynamic> j) => TopupInfo(
+        min: _int(j['min']) == 0 ? 10000 : _int(j['min']),
+        max: _int(j['max']) == 0 ? 5000000 : _int(j['max']),
+        methods: _list(j['methods']).map(PayMethod.fromJson).toList(),
+      );
+}
+
 class AppUser {
   final String name, username;
   final int balance;
@@ -271,6 +295,14 @@ class CreateOrderRequest {
         'fields': fields,
         'whatsapp': whatsapp,
       };
+}
+
+/// "05/11/2026 21:41" dari teks ISO 8601 (waktu setempat).
+String formatDateTime(String iso) {
+  final d = DateTime.tryParse(iso)?.toLocal();
+  if (d == null) return iso;
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${two(d.day)}/${two(d.month)}/${d.year} ${two(d.hour)}:${two(d.minute)}';
 }
 
 String rupiah(int v) {
