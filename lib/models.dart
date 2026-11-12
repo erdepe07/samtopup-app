@@ -15,8 +15,7 @@ List<Map<String, dynamic>> _list(dynamic v) {
 
 class GameSummary {
   final String slug, name, image;
-  const GameSummary(
-      {required this.slug, required this.name, required this.image});
+  const GameSummary({required this.slug, required this.name, required this.image});
 
   factory GameSummary.fromJson(Map<String, dynamic> j) => GameSummary(
         slug: _str(j['slug']),
@@ -164,13 +163,7 @@ class GameDetail {
 class PaymentInfo {
   /// qris | va | retail | redirect | balance | none
   final String type;
-  final String checkoutUrl,
-      qrUrl,
-      qrString,
-      payCode,
-      payLabel,
-      instruction,
-      expiredAt;
+  final String checkoutUrl, qrUrl, qrString, payCode, payLabel, instruction, expiredAt;
   const PaymentInfo({
     this.type = 'none',
     this.checkoutUrl = '',
@@ -244,8 +237,7 @@ class Order {
 class TopupInfo {
   final int min, max;
   final List<PayMethod> methods;
-  const TopupInfo(
-      {this.min = 10000, this.max = 5000000, this.methods = const []});
+  const TopupInfo({this.min = 10000, this.max = 5000000, this.methods = const []});
 
   factory TopupInfo.fromJson(Map<String, dynamic> j) => TopupInfo(
         min: _int(j['min']) == 0 ? 10000 : _int(j['min']),

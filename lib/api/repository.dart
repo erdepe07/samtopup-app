@@ -12,7 +12,8 @@ abstract class Repository {
 
   Future<Order> createOrder(CreateOrderRequest req);
   Future<Order> order(String invoice);
-  Future<List<Order>> myOrders();
+  /// [from]/[to] = tanggal `YYYY-MM-DD` (termasuk). Kosong = hari ini.
+  Future<List<Order>> myOrders({String? from, String? to});
 
   /// Isi saldo (wajib login). Hasilnya berbentuk [Order] agar layar pembayaran bisa dipakai ulang.
   Future<TopupInfo> topupInfo();
@@ -38,8 +39,7 @@ class HttpRepository implements Repository {
   Map<String, dynamic> _map(dynamic v) => Map<String, dynamic>.from(v as Map);
 
   @override
-  Future<HomeData> home() async =>
-      HomeData.fromJson(_map(await api.get('/home')));
+  Future<HomeData> home() async => HomeData.fromJson(_map(await api.get('/home')));
 
   @override
   Future<GameDetail> game(String slug) async =>
@@ -47,8 +47,7 @@ class HttpRepository implements Repository {
 
   @override
   Future<String> checkNickname(String slug, Map<String, String> fields) async {
-    final d =
-        _map(await api.post('/games/$slug/check-nickname', {'fields': fields}));
+    final d = _map(await api.post('/games/$slug/check-nickname', {'fields': fields}));
     return '${d['nickname'] ?? ''}';
   }
 
@@ -57,38 +56,33 @@ class HttpRepository implements Repository {
       Order.fromJson(_map(await api.post('/orders', req.toJson())));
 
   @override
-  Future<Order> order(String invoice) async => Order.fromJson(
-      _map(await api.get('/orders/${Uri.encodeComponent(invoice)}')));
+  Future<Order> order(String invoice) async =>
+      Order.fromJson(_map(await api.get('/orders/${Uri.encodeComponent(invoice)}')));
 
   @override
-  Future<List<Order>> myOrders() async {
-    final d = await api.get('/orders');
+  Future<List<Order>> myOrders({String? from, String? to}) async {
+    final d = await api.get('/orders', query: {
+      if (from != null) 'from': from,
+      if (to != null) 'to': to,
+    });
     final list = d is Map ? d['orders'] : d;
     if (list is! List) return const [];
-    return list
-        .whereType<Map>()
-        .map((e) => Order.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return list.whereType<Map>().map((e) => Order.fromJson(Map<String, dynamic>.from(e))).toList();
   }
 
   @override
-  Future<TopupInfo> topupInfo() async =>
-      TopupInfo.fromJson(_map(await api.get('/topup/methods')));
+  Future<TopupInfo> topupInfo() async => TopupInfo.fromJson(_map(await api.get('/topup/methods')));
 
   @override
   Future<Order> createTopup(int amount, String methodCode) async =>
-      Order.fromJson(_map(await api
-          .post('/topup', {'amount': amount, 'method_code': methodCode})));
+      Order.fromJson(_map(await api.post('/topup', {'amount': amount, 'method_code': methodCode})));
 
   @override
   Future<List<Order>> myTopups() async {
     final d = await api.get('/topup');
     final list = d is Map ? d['orders'] : d;
     if (list is! List) return const [];
-    return list
-        .whereType<Map>()
-        .map((e) => Order.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return list.whereType<Map>().map((e) => Order.fromJson(Map<String, dynamic>.from(e))).toList();
   }
 
   @override
@@ -97,8 +91,7 @@ class HttpRepository implements Repository {
 
   @override
   Future<AuthResult> login(String username, String password) async =>
-      AuthResult.fromJson(_map(await api
-          .post('/auth/login', {'username': username, 'password': password})));
+      AuthResult.fromJson(_map(await api.post('/auth/login', {'username': username, 'password': password})));
 
   @override
   Future<AuthResult> register({

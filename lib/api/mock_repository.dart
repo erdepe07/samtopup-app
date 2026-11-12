@@ -10,8 +10,7 @@ class MockRepository implements Repository {
   final Map<String, Order> _orders = {};
   AppUser? _user;
 
-  Future<T> _delay<T>(T v) =>
-      Future.delayed(const Duration(milliseconds: 450), () => v);
+  Future<T> _delay<T>(T v) => Future.delayed(const Duration(milliseconds: 450), () => v);
 
   @override
   Future<HomeData> home() => _delay(HomeData(
@@ -44,36 +43,21 @@ class MockRepository implements Repository {
     final isMl = slug == 'mobile-legends';
     return _delay(GameDetail(
       slug: slug,
-      name: slug
-          .split('-')
-          .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
-          .join(' '),
+      name: slug.split('-').map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}').join(' '),
       image: '',
-      description:
-          'Topup cepat dan aman. Masukkan ID akun dengan benar, pesanan diproses otomatis.',
+      description: 'Topup cepat dan aman. Masukkan ID akun dengan benar, pesanan diproses otomatis.',
       supportsNickname: isMl,
       fields: [
-        const FieldDef(
-            key: 'user_id',
-            label: 'User ID',
-            hint: 'Masukkan User ID',
-            numeric: true),
-        if (isMl)
-          const FieldDef(
-              key: 'zone_id', label: 'Zone ID', hint: 'Zone', numeric: true),
+        const FieldDef(key: 'user_id', label: 'User ID', hint: 'Masukkan User ID', numeric: true),
+        if (isMl) const FieldDef(key: 'zone_id', label: 'Zone ID', hint: 'Zone', numeric: true),
       ],
       groups: const [
         ProductGroup(name: 'Diamond', products: [
           Product(id: 'd5', name: '5 Diamond', price: 1500),
           Product(id: 'd12', name: '12 Diamond', price: 3300),
-          Product(
-              id: 'd59',
-              name: '59 Diamond',
-              price: 15800,
-              originalPrice: 16500),
+          Product(id: 'd59', name: '59 Diamond', price: 15800, originalPrice: 16500),
           Product(id: 'd172', name: '172 Diamond', price: 45000),
-          Product(
-              id: 'd344', name: '344 Diamond', price: 89000, note: 'Terlaris'),
+          Product(id: 'd344', name: '344 Diamond', price: 89000, note: 'Terlaris'),
           Product(id: 'd706', name: '706 Diamond', price: 178000),
         ]),
         ProductGroup(name: 'Pass & Bundle', products: [
@@ -82,31 +66,11 @@ class MockRepository implements Repository {
         ]),
       ],
       methods: const [
-        PayMethod(
-            code: 'qris',
-            name: 'QRIS',
-            group: 'E-Wallet & QRIS',
-            feePercent: 0.7),
-        PayMethod(
-            code: 'bca_va',
-            name: 'BCA Virtual Account',
-            group: 'Transfer Bank',
-            feeFlat: 4000),
-        PayMethod(
-            code: 'mandiri_va',
-            name: 'Mandiri Virtual Account',
-            group: 'Transfer Bank',
-            feeFlat: 4000),
-        PayMethod(
-            code: 'alfamart',
-            name: 'Alfamart',
-            group: 'Minimarket',
-            feeFlat: 3500),
-        PayMethod(
-            code: 'saldo',
-            name: 'Saldo Member',
-            group: 'Saldo',
-            requiresLogin: true),
+        PayMethod(code: 'qris', name: 'QRIS', group: 'E-Wallet & QRIS', feePercent: 0.7),
+        PayMethod(code: 'bca_va', name: 'BCA Virtual Account', group: 'Transfer Bank', feeFlat: 4000),
+        PayMethod(code: 'mandiri_va', name: 'Mandiri Virtual Account', group: 'Transfer Bank', feeFlat: 4000),
+        PayMethod(code: 'alfamart', name: 'Alfamart', group: 'Minimarket', feeFlat: 3500),
+        PayMethod(code: 'saldo', name: 'Saldo Member', group: 'Saldo', requiresLogin: true),
       ],
     ));
   }
@@ -124,9 +88,7 @@ class MockRepository implements Repository {
     final inv = 'INV${DateTime.now().millisecondsSinceEpoch % 100000000}';
     _created[inv] = DateTime.now();
     final detail = await game(req.gameSlug);
-    final product = detail.groups
-        .expand((g) => g.products)
-        .firstWhere((p) => p.id == req.productId);
+    final product = detail.groups.expand((g) => g.products).firstWhere((p) => p.id == req.productId);
     final method = detail.methods.firstWhere((m) => m.code == req.methodCode);
     final total = product.price + method.feeFor(product.price);
     final isBalance = method.code == 'saldo';
@@ -145,9 +107,7 @@ class MockRepository implements Repository {
               type: method.code.contains('va') ? 'va' : 'qris',
               payCode: method.code.contains('va') ? '8077 0000 1234 5678' : '',
               payLabel: method.name,
-              expiredAt: DateTime.now()
-                  .add(const Duration(hours: 1))
-                  .toIso8601String(),
+              expiredAt: DateTime.now().add(const Duration(hours: 1)).toIso8601String(),
             ),
     );
     _orders[inv] = o;
@@ -157,8 +117,7 @@ class MockRepository implements Repository {
   @override
   Future<Order> order(String invoice) async {
     final o = _orders[invoice];
-    if (o == null)
-      throw const ApiException('Pesanan tidak ditemukan.', status: 404);
+    if (o == null) throw const ApiException('Pesanan tidak ditemukan.', status: 404);
     final age = DateTime.now().difference(_created[invoice]!).inSeconds;
     final status = age > 20 ? 'success' : (age > 10 ? 'processing' : o.status);
     return Order(
@@ -176,23 +135,17 @@ class MockRepository implements Repository {
   }
 
   @override
-  Future<List<Order>> myOrders() async =>
-      _delay(_orders.values.toList().reversed.toList());
+  Future<List<Order>> myOrders({String? from, String? to}) async => _delay(_orders.values.toList().reversed.toList());
 
   @override
   Future<TopupInfo> topupInfo() => _delay(const TopupInfo(methods: [
         PayMethod(code: 'QRISC', name: 'QRIS', group: 'QRIS'),
-        PayMethod(
-            code: 'BCAVA',
-            name: 'BCA Virtual Account',
-            group: 'Virtual Account'),
+        PayMethod(code: 'BCAVA', name: 'BCA Virtual Account', group: 'Virtual Account'),
       ]));
 
   @override
   Future<Order> createTopup(int amount, String methodCode) async {
-    final id = '${DateTime.now().millisecondsSinceEpoch}'
-        .substring(0, 14)
-        .padRight(14, '0');
+    final id = '${DateTime.now().millisecondsSinceEpoch}'.substring(0, 14).padRight(14, '0');
     _created[id] = DateTime.now();
     final isVa = methodCode.contains('VA');
     final o = Order(
@@ -208,8 +161,7 @@ class MockRepository implements Repository {
         type: isVa ? 'va' : 'qris',
         payCode: isVa ? '8077 0000 1234 5678' : '',
         payLabel: 'BCA Virtual Account',
-        expiredAt:
-            DateTime.now().add(const Duration(hours: 24)).toIso8601String(),
+        expiredAt: DateTime.now().add(const Duration(hours: 24)).toIso8601String(),
       ),
     );
     _orders[id] = o;
@@ -217,34 +169,21 @@ class MockRepository implements Repository {
   }
 
   @override
-  Future<List<Order>> myTopups() async => _delay(_orders.values
-      .where((o) => o.game == 'Isi Saldo')
-      .toList()
-      .reversed
-      .toList());
+  Future<List<Order>> myTopups() async =>
+      _delay(_orders.values.where((o) => o.game == 'Isi Saldo').toList().reversed.toList());
 
   @override
   Future<Order> topup(String id) async {
     final o = _orders[id];
-    if (o == null)
-      throw const ApiException('Data tidak ditemukan.', status: 404);
+    if (o == null) throw const ApiException('Data tidak ditemukan.', status: 404);
     final done = DateTime.now().difference(_created[id]!).inSeconds > 15;
     if (done && o.status != 'success' && _user != null) {
-      _user = AppUser(
-          name: _user!.name,
-          username: _user!.username,
-          balance: _user!.balance + o.total);
+      _user = AppUser(name: _user!.name, username: _user!.username, balance: _user!.balance + o.total);
     }
     final st = done ? 'success' : 'pending';
     final r = Order(
-      invoice: o.invoice,
-      status: st,
-      game: o.game,
-      product: o.product,
-      target: o.target,
-      method: o.method,
-      createdAt: o.createdAt,
-      total: o.total,
+      invoice: o.invoice, status: st, game: o.game, product: o.product, target: o.target,
+      method: o.method, createdAt: o.createdAt, total: o.total,
       payment: done ? const PaymentInfo() : o.payment,
       note: done ? 'Saldo sudah masuk ke akun Anda.' : '',
     );
@@ -255,8 +194,7 @@ class MockRepository implements Repository {
   @override
   Future<AuthResult> login(String username, String password) async {
     await Future.delayed(const Duration(milliseconds: 500));
-    if (password.length < 4)
-      throw const ApiException('Username atau password salah.', status: 401);
+    if (password.length < 4) throw const ApiException('Username atau password salah.', status: 401);
     _user = AppUser(name: username, username: username, balance: 250000);
     return AuthResult(token: 'mock-token', user: _user!);
   }
@@ -273,8 +211,7 @@ class MockRepository implements Repository {
   }
 
   @override
-  Future<AppUser> me() async =>
-      _user ?? (throw const ApiException('Belum login.', status: 401));
+  Future<AppUser> me() async => _user ?? (throw const ApiException('Belum login.', status: 401));
 
   @override
   Future<void> registerDevice(String fcmToken, String platform) async {}

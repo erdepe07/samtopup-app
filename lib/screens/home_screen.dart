@@ -138,31 +138,29 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         if (_query.isEmpty && d.categories.length > 1)
           SliverToBoxAdapter(
-            child: SizedBox(
-              height: 54,
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                scrollDirection: Axis.horizontal,
-                itemCount: d.categories.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (_, i) {
-                  final sel = i == _cat;
-                  return ChoiceChip(
-                    label: Text(d.categories[i].name),
-                    selected: sel,
-                    showCheckmark: false,
-                    onSelected: (_) => setState(() => _cat = i),
-                    labelStyle: TextStyle(
-                      color: sel ? Colors.white : p.ink,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    selectedColor: p.primary,
-                    backgroundColor: p.surface,
-                    side: BorderSide(color: sel ? p.primary : p.border),
-                    shape: const StadiumBorder(),
-                  );
-                },
-              ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+              child: LayoutBuilder(builder: (context, box) {
+                // Semua kategori selalu terlihat: 3 per baris di HP, lebih banyak di layar lebar.
+                const gap = 8.0;
+                final perRow = box.maxWidth >= 720 ? 6 : 3;
+                final w = (box.maxWidth - gap * (perRow - 1)) / perRow;
+                return Wrap(
+                  spacing: gap,
+                  runSpacing: gap,
+                  children: [
+                    for (var i = 0; i < d.categories.length; i++)
+                      SizedBox(
+                        width: w,
+                        child: _CategoryButton(
+                          name: d.categories[i].name,
+                          selected: i == _cat.clamp(0, d.categories.length - 1),
+                          onTap: () => setState(() => _cat = i),
+                        ),
+                      ),
+                  ],
+                );
+              }),
             ),
           ),
         SliverPadding(
@@ -175,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(40),
-              child: Center(child: Text('Tidak ada produk.', style: TextStyle(color: p.muted))),
+              child: Center(child: Text(_query.isNotEmpty ? 'Tidak ada produk.' : 'Belum ada produk di kategori ini.', style: TextStyle(color: p.muted))),
             ),
           )
         else
@@ -193,6 +191,59 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
       ],
+    );
+  }
+}
+
+IconData _categoryIcon(String name) {
+  final n = name.toLowerCase();
+  if (n.contains('game')) return Icons.sports_esports_rounded;
+  if (n.contains('pulsa')) return Icons.phone_android_rounded;
+  if (n.contains('data') || n.contains('paket')) return Icons.wifi_rounded;
+  if (n.contains('voucher')) return Icons.card_giftcard_rounded;
+  if (n.contains('pln') || n.contains('listrik') || n.contains('token')) return Icons.bolt_rounded;
+  if (n.contains('money') || n.contains('wallet') || n.contains('saldo')) return Icons.account_balance_wallet_rounded;
+  return Icons.category_rounded;
+}
+
+class _CategoryButton extends StatelessWidget {
+  final String name;
+  final bool selected;
+  final VoidCallback onTap;
+  const _CategoryButton({required this.name, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = Palette.of(context);
+    return Material(
+      color: selected ? p.primary : p.surface,
+      shape: StadiumBorder(side: BorderSide(color: selected ? p.primary : p.border)),
+      child: InkWell(
+        customBorder: const StadiumBorder(),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 11),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(_categoryIcon(name), size: 17, color: selected ? Colors.white : p.primary),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: selected ? Colors.white : p.ink,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
