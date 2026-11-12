@@ -1,9 +1,17 @@
 # This is a generated file; do not edit or check into version control.
+flutter_native_splash=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\flutter_native_splash-2.4.1\\
 path_provider=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider-2.1.5\\
 path_provider_android=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_android-2.2.10\\
 path_provider_foundation=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_foundation-2.4.1\\
 path_provider_linux=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_linux-2.2.1\\
 path_provider_windows=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\path_provider_windows-2.3.0\\
+permission_handler=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\permission_handler-11.3.1\\
+permission_handler_android=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\permission_handler_android-12.0.13\\
+permission_handler_apple=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\permission_handler_apple-9.4.10\\
+permission_handler_html=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\permission_handler_html-0.1.3+5\\
+permission_handler_windows=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\permission_handler_windows-0.2.1\\
+print_bluetooth_thermal=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\print_bluetooth_thermal-1.2.1\\
+share_plus=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\share_plus-10.1.4\\
 shared_preferences=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\shared_preferences-2.3.3\\
 shared_preferences_android=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\shared_preferences_android-2.3.2\\
 shared_preferences_foundation=C:\\Users\\Xllent Era\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\shared_preferences_foundation-2.5.4\\
